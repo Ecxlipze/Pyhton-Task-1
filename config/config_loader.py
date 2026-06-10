@@ -7,10 +7,13 @@ def load_config(file_path):
     if not path.exists():
         raise ValueError("Config file not found")
     text = path.read_text()
-    if path.suffix == ".json":
-        return json.loads(text)
-    if path.suffix in [".yaml", ".yml"]:
-        return yaml.safe_load(text)
+    try:
+        if path.suffix == ".json":
+            return json.loads(text)
+        if path.suffix in [".yaml", ".yml"]:
+            return yaml.safe_load(text)
+    except Exception as error:
+        raise ValueError(f"Config file is not valid: {error}")
     raise ValueError("Use a .json, .yaml, or .yml config file")
 
 def check_config(config):

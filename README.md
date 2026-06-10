@@ -139,6 +139,8 @@ Try a broken config:
 
 ```bash
 python main.py list --config examples/broken_config.yaml
+python main.py list --config examples/malformed_config.json
+python main.py start --config examples/invalid_path_config.yaml
 ```
 
 ## Python Topics Used

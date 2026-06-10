@@ -1,0 +1,7 @@
+tasks:
+  - task_name: Invalid file path example
+    task_type: file
+    schedule:
+      type: interval
+      minutes: 1
+    file_path: examples/does_not_exist.txt

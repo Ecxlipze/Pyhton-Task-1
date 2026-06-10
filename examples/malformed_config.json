@@ -1,0 +1,13 @@
+{
+  "tasks": [
+    {
+      "task_name": "Broken JSON example",
+      "task_type": "log"
+      "schedule": {
+        "type": "interval",
+        "minutes": 1
+      },
+      "file_path": "examples/watch_folder"
+    }
+  ]
+}
