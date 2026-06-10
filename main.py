@@ -55,6 +55,9 @@ def main():
             start_app(args.config)
         elif args.command == "stop":
             print("Use Ctrl+C to stop the running app.")
+        elif args.command == "status":
+            print("Status: this simple app runs in the terminal when you use start.")
+            print("Check logs/app.log to see recent task activity.")
     except Exception as error:
         print(f"Error: {error}", file=sys.stderr)
         sys.exit(1)

@@ -8,5 +8,6 @@ def get_args():
     list_command = subparsers.add_parser("list")
     list_command.add_argument("--config", required=True)
     subparsers.add_parser("stop")
+    subparsers.add_parser("status")
 
     return parser.parse_args()

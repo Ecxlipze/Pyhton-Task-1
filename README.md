@@ -49,6 +49,9 @@ Show help:
 
 ```bash
 python main.py --help
+python main.py start --help
+python main.py stop --help
+python main.py status --help
 ```
 
 List configured tasks:
@@ -71,6 +74,12 @@ python main.py stop
 ```
 
 The app runs in the terminal. Press `Ctrl+C` to stop it.
+
+Check status:
+
+```bash
+python main.py status
+```
 
 ## YAML Config Example
 
