@@ -15,6 +15,7 @@ The app reads tasks from a JSON or YAML file. It can run tasks on a schedule and
 - Background scheduler thread using `threading`
 - File monitoring using `watchdog`
 - Email preparation using `smtplib` and `email.mime`
+- Email notifications on task success or failure
 - Safe email dry-run mode when SMTP credentials are missing
 - Simple task selection using `if` / `elif`
 
@@ -103,6 +104,8 @@ Reads a file and logs simple details such as line count and word count.
 
 `email`
 Prepares an email message. If SMTP environment variables are missing, it logs a dry-run message instead of sending.
+
+The app also sends an email notification when a task completes or fails. If SMTP settings are missing, the notification is logged as a dry run.
 
 ## Email Environment Variables
 To send real email, set these variables:

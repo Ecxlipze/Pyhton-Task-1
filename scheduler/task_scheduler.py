@@ -2,14 +2,23 @@ import logging
 import time
 from threading import Event, Thread
 import schedule
+from utils.emailer import send_email
 
 def run_task(task):
     try:
         logging.info("Running: %s", task.task_name)
         task.execute()
         logging.info("Done: %s", task.task_name)
+        send_email(
+            f"Task completed: {task.task_name}",
+            f"The task '{task.task_name}' completed successfully.",
+        )
     except Exception as error:
         logging.error("Task failed: %s", error)
+        send_email(
+            f"Task failed: {task.task_name}",
+            f"The task '{task.task_name}' failed. Error: {error}",
+        )
 
 def add_task_to_schedule(task):
     task_schedule = task.config["schedule"]
