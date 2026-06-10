@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+logs/
+.DS_Store
+examples/watch_folder/*
+!examples/watch_folder/.gitkeep
