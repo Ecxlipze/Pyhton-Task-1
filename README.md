@@ -1,6 +1,6 @@
 # Simple Python Automation Tool
 
-This is a very basic Python mini project. Most of the program is in `main.py` so it is easy to read from top to bottom.
+This is a very basic Python mini project. The code is split into simple folders so each folder has one clear job.
 
 The app reads tasks from a JSON or YAML file. It can run tasks on a schedule and can also run tasks when files change.
 
@@ -22,11 +22,23 @@ The app reads tasks from a JSON or YAML file. It can run tasks on a schedule and
 
 ```text
 main.py
+cli/
+config/
+scheduler/
 tasks/
+utils/
 examples/
 ```
 
-The project also keeps small package folders like `cli/`, `scheduler/`, `utils/`, and `config/` because they were part of the assignment structure, but the beginner version keeps the real code mostly in `main.py`.
+Folder meaning:
+
+- `main.py`: starts the app and connects everything
+- `cli/`: command-line arguments like `start`, `list`, and `stop`
+- `config/`: reads and checks JSON/YAML config files
+- `scheduler/`: runs tasks on a timer and watches files
+- `tasks/`: contains the actual task classes
+- `utils/`: logging setup
+- `examples/`: demo config and sample files
 
 ## Installation
 
@@ -182,7 +194,8 @@ The project avoids advanced patterns. For example:
 The most important files to read first are:
 
 1. `main.py`
-2. `tasks/base_task.py`
-3. `tasks/log_task.py`
-4. `tasks/file_processing_task.py`
-5. `tasks/email_task.py`
+2. `examples/config.yaml`
+3. `tasks/base_task.py`
+4. `tasks/log_task.py`
+5. `tasks/file_processing_task.py`
+6. `tasks/email_task.py`
