@@ -1,5 +1,6 @@
 import sys
 import time
+from pathlib import Path
 from cli.commands import get_args
 from config.config_loader import check_config, load_config
 from scheduler.file_watcher import start_file_watcher
@@ -8,6 +9,8 @@ from tasks.email_task import EmailTask
 from tasks.file_processing_task import FileProcessingTask
 from tasks.log_task import LogTask
 from utils.logger import setup_logger
+
+STOP_FILE = Path("logs/stop.txt")
 
 def make_tasks(config):
     tasks = []
@@ -29,6 +32,9 @@ def list_tasks(config_file):
 
 def start_app(config_file):
     setup_logger()
+    if STOP_FILE.exists():
+        STOP_FILE.unlink()
+
     config = load_config(config_file)
     check_config(config)
     tasks = make_tasks(config)
@@ -37,14 +43,30 @@ def start_app(config_file):
 
     print("App is running. Press Ctrl+C to stop.")
     try:
-        while True:
+        while not STOP_FILE.exists():
             time.sleep(1)
     except KeyboardInterrupt:
+        print("Stopping from Ctrl+C...")
+    finally:
         stop_event.set()
         observer.stop()
         observer.join()
         scheduler_thread.join()
+        if STOP_FILE.exists():
+            STOP_FILE.unlink()
         print("App stopped.")
+
+def stop_app():
+    Path("logs").mkdir(exist_ok=True)
+    STOP_FILE.write_text("stop")
+    print("Stop requested. The running app will stop shortly.")
+
+def show_status():
+    if STOP_FILE.exists():
+        print("Status: stop requested.")
+    else:
+        print("Status: no stop request found.")
+        print("If start is running, check logs/app.log for recent activity.")
 
 def main():
     args = get_args()
@@ -54,10 +76,9 @@ def main():
         elif args.command == "start":
             start_app(args.config)
         elif args.command == "stop":
-            print("Use Ctrl+C to stop the running app.")
+            stop_app()
         elif args.command == "status":
-            print("Status: this simple app runs in the terminal when you use start.")
-            print("Check logs/app.log to see recent task activity.")
+            show_status()
     except Exception as error:
         print(f"Error: {error}", file=sys.stderr)
         sys.exit(1)

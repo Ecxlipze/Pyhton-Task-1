@@ -73,7 +73,7 @@ Stop the running app:
 python main.py stop
 ```
 
-The app runs in the terminal. Press `Ctrl+C` to stop it.
+Run `stop` from another terminal while `start` is running. You can also press `Ctrl+C` in the start terminal.
 
 Check status:
 
