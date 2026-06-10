@@ -16,13 +16,6 @@ from tasks.file_processing_task import FileProcessingTask
 from tasks.log_task import LogTask
 
 
-TASK_CLASSES = {
-    "log": LogTask,
-    "file": FileProcessingTask,
-    "email": EmailTask,
-}
-
-
 def setup_logger():
     Path("logs").mkdir(exist_ok=True)
 
@@ -34,8 +27,6 @@ def setup_logger():
             logging.StreamHandler(),
         ],
     )
-
-    return logging.getLogger("automation_tool")
 
 
 def load_config(file_path):
@@ -64,42 +55,48 @@ def check_config(config):
             if key not in task:
                 raise ValueError(f"Task is missing: {key}")
 
-        if task["task_type"] not in TASK_CLASSES:
+        if task["task_type"] not in ["log", "file", "email"]:
             raise ValueError(f"Unknown task type: {task['task_type']}")
+
+        if task["schedule"]["type"] not in ["interval", "daily"]:
+            raise ValueError("Schedule type must be interval or daily")
 
 
 def make_tasks(config):
     tasks = []
 
     for task_config in config["tasks"]:
-        task_class = TASK_CLASSES[task_config["task_type"]]
-        task = task_class(task_config)
-        tasks.append(task)
+        if task_config["task_type"] == "log":
+            tasks.append(LogTask(task_config))
+        elif task_config["task_type"] == "file":
+            tasks.append(FileProcessingTask(task_config))
+        elif task_config["task_type"] == "email":
+            tasks.append(EmailTask(task_config))
 
     return tasks
 
 
-def run_task(task, logger):
+def run_task(task):
     try:
-        logger.info("Running: %s", task.task_name)
+        logging.info("Running: %s", task.task_name)
         task.execute()
-        logger.info("Done: %s", task.task_name)
+        logging.info("Done: %s", task.task_name)
     except Exception as error:
-        logger.error("Task failed: %s", error)
+        logging.error("Task failed: %s", error)
 
 
-def add_to_schedule(task, logger):
+def add_to_schedule(task):
     task_schedule = task.config["schedule"]
 
     if task_schedule["type"] == "interval":
         minutes = task_schedule.get("minutes", 1)
-        schedule.every(minutes).minutes.do(run_task, task, logger)
-        logger.info("Scheduled %s every %s minute(s)", task.task_name, minutes)
+        schedule.every(minutes).minutes.do(run_task, task)
+        logging.info("Scheduled %s every %s minute(s)", task.task_name, minutes)
 
     if task_schedule["type"] == "daily":
         run_time = task_schedule.get("time", "09:00")
-        schedule.every().day.at(run_time).do(run_task, task, logger)
-        logger.info("Scheduled %s every day at %s", task.task_name, run_time)
+        schedule.every().day.at(run_time).do(run_task, task)
+        logging.info("Scheduled %s every day at %s", task.task_name, run_time)
 
 
 def scheduler_loop(stop_event):
@@ -109,16 +106,10 @@ def scheduler_loop(stop_event):
 
 
 class ChangeHandler(FileSystemEventHandler):
-    def __init__(self, tasks, logger):
+    def __init__(self, tasks):
         self.tasks = tasks
-        self.logger = logger
-        self.last_file = ""
-        self.last_time = 0
 
     def on_modified(self, event):
-        self.handle_change(event)
-
-    def on_created(self, event):
         self.handle_change(event)
 
     def handle_change(self, event):
@@ -126,38 +117,31 @@ class ChangeHandler(FileSystemEventHandler):
             return
 
         changed_file = Path(event.src_path)
-        now = time.time()
-
-        if str(changed_file) == self.last_file and now - self.last_time < 1:
-            return
-
-        self.last_file = str(changed_file)
-        self.last_time = now
 
         for task in self.tasks:
             task_path = Path(task.file_path).resolve()
             task_folder = task_path if task_path.is_dir() else task_path.parent
 
             if changed_file.parent == task_folder:
-                self.logger.info("File changed: %s", changed_file)
-                run_task(task, self.logger)
+                logging.info("File changed: %s", changed_file)
+                run_task(task)
 
 
 def start_app(config_file):
-    logger = setup_logger()
+    setup_logger()
     config = load_config(config_file)
     check_config(config)
     tasks = make_tasks(config)
 
     for task in tasks:
-        add_to_schedule(task, logger)
+        add_to_schedule(task)
 
     stop_event = Event()
     scheduler_thread = Thread(target=scheduler_loop, args=(stop_event,))
     scheduler_thread.start()
 
     observer = Observer()
-    handler = ChangeHandler(tasks, logger)
+    handler = ChangeHandler(tasks)
     watched_folders = []
 
     for task in tasks:
@@ -167,21 +151,21 @@ def start_app(config_file):
         if folder.exists() and folder not in watched_folders:
             observer.schedule(handler, str(folder), recursive=False)
             watched_folders.append(folder)
-            logger.info("Watching folder: %s", folder)
+            logging.info("Watching folder: %s", folder)
 
     observer.start()
-    logger.info("App started. Press Ctrl+C to stop.")
+    logging.info("App started. Press Ctrl+C to stop.")
 
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        logger.info("Stopping app...")
+        logging.info("Stopping app...")
         stop_event.set()
         observer.stop()
         observer.join()
         scheduler_thread.join()
-        logger.info("App stopped.")
+        logging.info("App stopped.")
 
 
 def list_tasks(config_file):

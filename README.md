@@ -16,7 +16,7 @@ The app reads tasks from a JSON or YAML file. It can run tasks on a schedule and
 - File monitoring using `watchdog`
 - Email preparation using `smtplib` and `email.mime`
 - Safe email dry-run mode when SMTP credentials are missing
-- Simple task selection using a dictionary
+- Simple task selection using `if` / `elif`
 
 ## Project Structure
 
