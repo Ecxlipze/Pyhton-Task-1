@@ -1,6 +1,6 @@
 # Simple Python Automation Tool
 
-This is a very basic Python mini project.
+This is a very basic Python mini project. Most of the program is in `main.py` so it is easy to read from top to bottom.
 
 The app reads tasks from a JSON or YAML file. It can run tasks on a schedule and can also run tasks when files change.
 
@@ -16,19 +16,17 @@ The app reads tasks from a JSON or YAML file. It can run tasks on a schedule and
 - File monitoring using `watchdog`
 - Email preparation using `smtplib` and `email.mime`
 - Safe email dry-run mode when SMTP credentials are missing
-- Simple task factory using a dictionary
+- Simple task selection using a dictionary
 
 ## Project Structure
 
 ```text
 main.py
-cli/
-scheduler/
 tasks/
-utils/
-config/
 examples/
 ```
+
+The project also keeps small package folders like `cli/`, `scheduler/`, `utils/`, and `config/` because they were part of the assignment structure, but the beginner version keeps the real code mostly in `main.py`.
 
 ## Installation
 
@@ -184,7 +182,7 @@ The project avoids advanced patterns. For example:
 The most important files to read first are:
 
 1. `main.py`
-2. `cli/commands.py`
+2. `tasks/base_task.py`
 3. `tasks/log_task.py`
 4. `tasks/file_processing_task.py`
 5. `tasks/email_task.py`
