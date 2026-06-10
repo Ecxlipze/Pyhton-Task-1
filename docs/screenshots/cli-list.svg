@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="220" viewBox="0 0 760 220">
+  <rect width="760" height="220" fill="#111827"/>
+  <rect x="18" y="18" width="724" height="184" rx="8" fill="#0b1220" stroke="#374151"/>
+  <text x="38" y="55" fill="#d1d5db" font-family="Menlo, Consolas, monospace" font-size="16">$ python main.py list --config examples/config.yaml</text>
+  <text x="38" y="92" fill="#f9fafb" font-family="Menlo, Consolas, monospace" font-size="16">Tasks:</text>
+  <text x="38" y="124" fill="#a7f3d0" font-family="Menlo, Consolas, monospace" font-size="16">- Write demo log (log)</text>
+  <text x="38" y="154" fill="#a7f3d0" font-family="Menlo, Consolas, monospace" font-size="16">- Count sample file (file)</text>
+  <text x="38" y="184" fill="#a7f3d0" font-family="Menlo, Consolas, monospace" font-size="16">- Email dry run (email)</text>
+</svg>

@@ -143,6 +143,16 @@ python main.py list --config examples/malformed_config.json
 python main.py start --config examples/invalid_path_config.yaml
 ```
 
+## Screenshots
+
+CLI task list:
+
+![CLI task list](docs/screenshots/cli-list.svg)
+
+Log output:
+
+![Log output](docs/screenshots/log-output.svg)
+
 ## Python Topics Used
 
 - Python basics: functions, dictionaries, lists, strings, and files

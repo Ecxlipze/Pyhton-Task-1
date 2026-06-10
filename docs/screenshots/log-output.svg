@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260">
+  <rect width="900" height="260" fill="#111827"/>
+  <rect x="18" y="18" width="864" height="224" rx="8" fill="#0b1220" stroke="#374151"/>
+  <text x="38" y="55" fill="#d1d5db" font-family="Menlo, Consolas, monospace" font-size="15">logs/app.log</text>
+  <text x="38" y="92" fill="#f9fafb" font-family="Menlo, Consolas, monospace" font-size="14">2026-06-10 15:30:07 | INFO | Scheduled Write demo log every 1 minute(s)</text>
+  <text x="38" y="124" fill="#f9fafb" font-family="Menlo, Consolas, monospace" font-size="14">2026-06-10 15:30:10 | INFO | File created: examples/watch_folder/task10-flow.txt</text>
+  <text x="38" y="156" fill="#a7f3d0" font-family="Menlo, Consolas, monospace" font-size="14">2026-06-10 15:30:10 | INFO | Running: Write demo log</text>
+  <text x="38" y="188" fill="#a7f3d0" font-family="Menlo, Consolas, monospace" font-size="14">2026-06-10 15:30:10 | INFO | Done: Write demo log</text>
+  <text x="38" y="220" fill="#93c5fd" font-family="Menlo, Consolas, monospace" font-size="14">2026-06-10 15:30:10 | INFO | Email notification dry run. No SMTP settings found.</text>
+</svg>
