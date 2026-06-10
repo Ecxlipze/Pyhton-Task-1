@@ -1,15 +1,11 @@
 from pathlib import Path
-
 from tasks.base_task import BaseTask
-
-
 class FileProcessingTask(BaseTask):
     def execute(self):
         path = Path(self.file_path)
         if not path.exists():
             self.logger.warning("File not found: %s", path)
             return
-
         if path.is_dir():
             file_count = 0
             for item in path.iterdir():

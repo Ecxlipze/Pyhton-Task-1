@@ -20,5 +20,5 @@ tasks:
       type: daily
       time: "09:00"
     file_path: examples/watch_folder
-    subject: "Automation Tool Demo"
-    body: "This email is prepared by Python. It will dry-run without SMTP variables."
+    subject: "Automation Tool"
+    body: "This email is prepared by Python Automation Tool"
