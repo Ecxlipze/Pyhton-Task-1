@@ -1,0 +1,6 @@
+tasks:
+  - task_name: Missing task type example
+    schedule:
+      type: interval
+      minutes: 1
+    file_path: examples/sample.txt
