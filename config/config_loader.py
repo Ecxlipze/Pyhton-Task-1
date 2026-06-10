@@ -6,7 +6,7 @@ class ConfigError(Exception):
     """A friendly error for problems in the config file."""
 
 
-REQUIRED_TASK_KEYS = {"task_name", "task_type", "schedule", "file_path"}
+REQUIRED_TASK_KEYS = ["task_name", "task_type", "schedule", "file_path"]
 
 
 def load_config(config_path):
@@ -49,10 +49,9 @@ def validate_config(config, valid_task_types):
         if not isinstance(task, dict):
             raise ConfigError(f"Task #{index} must be a dictionary.")
 
-        missing_keys = REQUIRED_TASK_KEYS - set(task)
-        if missing_keys:
-            missing = ", ".join(sorted(missing_keys))
-            raise ConfigError(f"Task #{index} is missing required key(s): {missing}")
+        for key in REQUIRED_TASK_KEYS:
+            if key not in task:
+                raise ConfigError(f"Task #{index} is missing required key: {key}")
 
         task_type = task["task_type"]
         if task_type not in valid_task_types:

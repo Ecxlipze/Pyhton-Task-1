@@ -1,40 +1,44 @@
-from threading import Thread
 import time
+from threading import Thread
 
 import schedule
 
 
-class TaskScheduler:
-    def __init__(self, tasks, stop_event, logger):
-        self.tasks = tasks
-        self.stop_event = stop_event
-        self.logger = logger
-        self.thread = Thread(target=self._run_loop, daemon=True)
+def safe_run(task, logger):
+    try:
+        logger.info("Running task: %s", task.task_name)
+        task.execute()
+        logger.info("Finished task: %s", task.task_name)
+    except Exception as error:
+        logger.error("Task failed: %s - %s", task.task_name, error)
 
-    def start(self):
-        schedule.clear()
 
-        for task in self.tasks:
-            schedule_config = task.config["schedule"]
-            if schedule_config["type"] == "interval":
-                minutes = schedule_config.get("minutes", 1)
-                schedule.every(minutes).minutes.do(task.run)
-                self.logger.info("Scheduled '%s' every %s minute(s).", task.task_name, minutes)
-            elif schedule_config["type"] == "daily":
-                run_time = schedule_config.get("time", "09:00")
-                schedule.every().day.at(run_time).do(task.run)
-                self.logger.info("Scheduled '%s' daily at %s.", task.task_name, run_time)
+def add_task_to_schedule(task, logger):
+    task_schedule = task.config["schedule"]
 
-        self.thread.start()
+    if task_schedule["type"] == "interval":
+        minutes = task_schedule.get("minutes", 1)
+        schedule.every(minutes).minutes.do(safe_run, task, logger)
+        logger.info("Scheduled %s every %s minute(s)", task.task_name, minutes)
 
-    def _run_loop(self):
-        while not self.stop_event.is_set():
-            try:
-                schedule.run_pending()
-            except Exception:
-                self.logger.exception("Scheduler error")
-            time.sleep(1)
+    if task_schedule["type"] == "daily":
+        run_time = task_schedule.get("time", "09:00")
+        schedule.every().day.at(run_time).do(safe_run, task, logger)
+        logger.info("Scheduled %s every day at %s", task.task_name, run_time)
 
-    def stop(self):
-        schedule.clear()
-        self.thread.join(timeout=3)
+
+def scheduler_loop(stop_event, logger):
+    while not stop_event.is_set():
+        schedule.run_pending()
+        time.sleep(1)
+
+
+def start_scheduler(tasks, stop_event, logger):
+    schedule.clear()
+
+    for task in tasks:
+        add_task_to_schedule(task, logger)
+
+    thread = Thread(target=scheduler_loop, args=(stop_event, logger), daemon=True)
+    thread.start()
+    return thread

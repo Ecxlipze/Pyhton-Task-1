@@ -1,70 +1,70 @@
 import argparse
 import sys
+import time
+from threading import Event
 
 from config.config_loader import ConfigError, load_config, validate_config
-from scheduler.automation_app import AutomationApp
+from scheduler.file_watcher import start_file_watcher
+from scheduler.task_scheduler import start_scheduler
 from tasks.task_factory import create_task, get_task_types
 from utils.logger import setup_logger
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(
-        description="Beginner Python automation tool with CLI, scheduler, monitoring, and tasks."
-    )
+    parser = argparse.ArgumentParser(description="Simple Python automation tool")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    start_parser = subparsers.add_parser("start", help="Start tasks from a config file")
-    start_parser.add_argument("--config", required=True, help="Path to JSON or YAML config")
-    start_parser.add_argument(
-        "--log-level",
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level",
-    )
+    start_parser = subparsers.add_parser("start")
+    start_parser.add_argument("--config", required=True)
 
-    list_parser = subparsers.add_parser("list", help="List tasks from a config file")
-    list_parser.add_argument("--config", required=True, help="Path to JSON or YAML config")
+    list_parser = subparsers.add_parser("list")
+    list_parser.add_argument("--config", required=True)
 
-    subparsers.add_parser("stop", help="Show how to stop the foreground app")
+    subparsers.add_parser("stop")
     return parser
 
 
-def _load_validated_config(config_path):
+def read_config(config_path):
     config = load_config(config_path)
     validate_config(config, get_task_types())
     return config
 
 
 def list_tasks(config_path):
-    config = _load_validated_config(config_path)
-    tasks = config["tasks"]
+    config = read_config(config_path)
 
     print("Configured tasks:")
-    for task_config in tasks:
-        schedule_config = task_config["schedule"]
-        if schedule_config["type"] == "interval":
-            schedule_text = f"every {schedule_config.get('minutes', 1)} minute(s)"
-        else:
-            schedule_text = f"daily at {schedule_config.get('time', '09:00')}"
-
-        print(
-            f"- {task_config['task_name']} "
-            f"({task_config['task_type']}) - {schedule_text}"
-        )
+    for task in config["tasks"]:
+        print(f"- {task['task_name']} ({task['task_type']})")
 
 
-def start_app(config_path, log_level):
-    logger = setup_logger(log_level)
-    config = _load_validated_config(config_path)
+def start_app(config_path):
+    logger = setup_logger()
+    config = read_config(config_path)
+    tasks = []
 
-    tasks = [create_task(task_config) for task_config in config["tasks"]]
-    app = AutomationApp(tasks, logger)
-    app.start()
+    for task_config in config["tasks"]:
+        tasks.append(create_task(task_config))
+
+    stop_event = Event()
+    scheduler_thread = start_scheduler(tasks, stop_event, logger)
+    observer = start_file_watcher(tasks, logger)
+
+    logger.info("App started. Press Ctrl+C to stop.")
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        logger.info("Stopping app...")
+        stop_event.set()
+        observer.stop()
+        observer.join()
+        scheduler_thread.join()
+        logger.info("App stopped.")
 
 
 def stop_app():
-    print("This beginner project runs in the foreground.")
-    print("Use Ctrl+C in the running terminal to stop it cleanly.")
+    print("This simple app stops with Ctrl+C.")
 
 
 def main():
@@ -75,7 +75,7 @@ def main():
         if args.command == "list":
             list_tasks(args.config)
         elif args.command == "start":
-            start_app(args.config, args.log_level)
+            start_app(args.config)
         elif args.command == "stop":
             stop_app()
     except ConfigError as error:
